@@ -12,6 +12,15 @@ def get_url(company_name):
         return f"Error: {str(e)}"
     return "URL non trouvée"
 
+def clean_url(url):
+    if url.startswith("http://"):
+        url = url[len("http://"):]
+    elif url.startswith("https://"):
+        url = url[len("https://"):]
+    if url.endswith("/"):
+        url = url[:-1]
+    return url
+
 st.title('URL Finder for Investment Funds and Start-ups')
 st.write("Upload an Excel file with company names in the first column to retrieve their official websites.")
 
@@ -24,20 +33,27 @@ if uploaded_file is not None:
     st.write(df.head())
     
     # Ajouter une colonne pour les URLs en fonction des noms de sociétés dans la colonne A
+    st.write("Fetching URLs for each company name...")
     df['URL'] = df.iloc[:, 0].apply(get_url)
+    
+    # Nettoyer les URLs pour enlever le schéma et le '/' final
+    df['URL'] = df['URL'].apply(clean_url)
+    
+    # Renommer les colonnes pour correspondre au template
+    df.columns = ['Organization Name', 'Organization Website']
     
     # Afficher les résultats
     st.write("URLs have been fetched. Here are the first few results:")
     st.write(df.head())
     
     # Permettre le téléchargement du fichier avec les URLs ajoutées
-    output_file = 'output_with_urls.xlsx'
-    df.to_excel(output_file, index=False, engine='openpyxl')
+    output_file = 'output_with_urls.csv'
+    df.to_csv(output_file, index=False, sep=',')
     
     with open(output_file, "rb") as file:
         btn = st.download_button(
-            label="Download updated Excel file",
+            label="Download updated CSV file",
             data=file,
             file_name=output_file,
-            mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            mime="text/csv"
         )
