@@ -6,7 +6,7 @@ import requests
 from time import sleep
 from itertools import cycle
 
-# Liste de proxies gratuits
+# Liste de proxies gratuits (à remplacer par des proxies réels)
 proxies = [
     'http://proxy1.com:port',
     'http://proxy2.com:port',
@@ -16,11 +16,13 @@ proxies = [
 proxy_pool = cycle(proxies)
 
 def get_complete_url(simplified_url):
+    if not isinstance(simplified_url, str):
+        return "Invalid URL"
     if not simplified_url.startswith("http://") and not simplified_url.startswith("https://"):
         simplified_url = "https://" + simplified_url
     try:
         proxy = next(proxy_pool)
-        response = requests.get(simplified_url, proxies={"http": proxy, "https": proxy}, timeout=5)
+        response = requests.get(simplified_url, proxies={"http": proxy, "https": proxy}, timeout=10)
         response.raise_for_status()
         return response.url
     except requests.RequestException as e:
@@ -36,6 +38,8 @@ def get_url(company_name):
     return "URL non trouvée"
 
 def clean_url(url):
+    if not isinstance(url, str):
+        return url
     if url.startswith("http://"):
         url = url[len("http://"):]
     elif url.startswith("https://"):
