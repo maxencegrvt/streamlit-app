@@ -4,9 +4,11 @@ from googlesearch import search
 
 # Fonction pour nettoyer l'URL
 def clean_url(url):
-    if not url.startswith("http://") and not url.startswith("https://"):
-        url = "http://" + url
-    return url.rstrip('/')
+    if isinstance(url, str):
+        if not url.startswith("http://") and not url.startswith("https://"):
+            url = "http://" + url
+        return url.rstrip('/')
+    return url
 
 # Fonction pour compléter l'URL
 def get_complete_url(simplified_url):
@@ -64,23 +66,26 @@ def main():
                 )
 
         elif function_choice == 'Import Pitchbook':
-            # Ajouter une colonne pour les URLs complètes
-            df['Complete URL'] = df.iloc[:, 1].apply(get_complete_url)
-            
-            st.write("Completing URLs for each simplified URL...")
-            st.write(df.head())
-            
-            # Sauvegarder les résultats
-            output_file = 'completed_urls.csv'
-            df.to_csv(output_file, index=False, sep=',')
-            
-            with open(output_file, "rb") as file:
-                btn = st.download_button(
-                    label="Download completed URLs CSV file",
-                    data=file,
-                    file_name=output_file,
-                    mime="text/csv"
-                )
+            # Vérifier que la colonne B contient des URLs valides
+            if 'Unnamed: 1' in df.columns:
+                df['Complete URL'] = df['Unnamed: 1'].apply(lambda x: get_complete_url(x) if isinstance(x, str) else x)
+                
+                st.write("Completing URLs for each simplified URL...")
+                st.write(df.head())
+                
+                # Sauvegarder les résultats
+                output_file = 'completed_urls.csv'
+                df.to_csv(output_file, index=False, sep=',')
+                
+                with open(output_file, "rb") as file:
+                    btn = st.download_button(
+                        label="Download completed URLs CSV file",
+                        data=file,
+                        file_name=output_file,
+                        mime="text/csv"
+                    )
+            else:
+                st.error("The uploaded file does not contain a second column with URLs.")
 
 if __name__ == '__main__':
     main()
