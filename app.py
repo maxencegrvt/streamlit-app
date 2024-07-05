@@ -2,6 +2,7 @@ import pandas as pd
 from googlesearch import search
 import streamlit as st
 import os
+import re
 
 def get_url(company_name):
     query = f"{company_name} site officiel"
@@ -13,12 +14,12 @@ def get_url(company_name):
     return "URL non trouvée"
 
 def clean_url(url):
-    if url.startswith("http://"):
-        url = url[len("http://"):]
-    elif url.startswith("https://"):
-        url = url[len("https://"):]
-    if url.endswith("/"):
-        url = url[:-1]
+    # Enlever les schémas http:// et https://
+    url = re.sub(r'^https?://', '', url)
+    # Enlever les préfixes www.
+    url = re.sub(r'^www\.', '', url)
+    # Enlever le suffixe /
+    url = url.rstrip('/')
     return url
 
 st.title('URL Finder for Investment Funds and Start-ups')
@@ -36,7 +37,7 @@ if uploaded_file is not None:
     st.write("Fetching URLs for each company name...")
     df['URL'] = df.iloc[:, 0].apply(get_url)
     
-    # Nettoyer les URLs pour enlever le schéma et le '/' final
+    # Nettoyer les URLs pour enlever le schéma, le 'www.' et le '/' final
     df['URL'] = df['URL'].apply(clean_url)
     
     # Renommer les colonnes pour correspondre au template
