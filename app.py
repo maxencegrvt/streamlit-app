@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import time
 from googlesearch import search
 
 # Fonction pour nettoyer l'URL
@@ -16,6 +17,7 @@ def get_complete_url(simplified_url):
     try:
         query = f"{simplified_url}"
         for url in search(query, num_results=1):
+            time.sleep(1)  # Pause de 2 secondes entre les requêtes pour éviter l'erreur 429
             return url
     except Exception as e:
         return f"Error: {str(e)}"
