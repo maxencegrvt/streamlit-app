@@ -1,19 +1,6 @@
 import pandas as pd
-from googlesearch import search
 import streamlit as st
-import os
 import requests
-from time import sleep
-from itertools import cycle
-
-# Liste de proxies gratuits (à remplacer par des proxies réels)
-proxies = [
-    'http://proxy1.com:port',
-    'http://proxy2.com:port',
-    'http://proxy3.com:port',
-]
-
-proxy_pool = cycle(proxies)
 
 def get_complete_url(simplified_url):
     if not isinstance(simplified_url, str):
@@ -21,8 +8,7 @@ def get_complete_url(simplified_url):
     if not simplified_url.startswith("http://") and not simplified_url.startswith("https://"):
         simplified_url = "https://" + simplified_url
     try:
-        proxy = next(proxy_pool)
-        response = requests.get(simplified_url, proxies={"http": proxy, "https": proxy}, timeout=10)
+        response = requests.get(simplified_url, timeout=10)
         response.raise_for_status()
         return response.url
     except requests.RequestException as e:
