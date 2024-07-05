@@ -1,6 +1,7 @@
 import streamlit as st
 import pandas as pd
 from googlesearch import search
+import requests
 
 # Fonction pour nettoyer l'URL
 def clean_url(url):
@@ -20,6 +21,19 @@ def get_complete_url(simplified_url):
     except Exception as e:
         return f"Error: {str(e)}"
     return full_url
+
+# Fonction pour valider l'URL
+def validate_url(url):
+    if not isinstance(url, str):
+        return "Invalid URL"
+    try:
+        response = requests.head(url, timeout=10)
+        response.raise_for_status()
+        return url
+    except requests.exceptions.HTTPError as e:
+        return f"HTTP Error: {e.response.status_code} for URL: {url}"
+    except requests.exceptions.RequestException as e:
+        return f"Request Exception: {e} for URL: {url}"
 
 # Fonction principale pour Streamlit
 def main():
@@ -68,7 +82,7 @@ def main():
         elif function_choice == 'Import Pitchbook':
             # Vérifier que la colonne B contient des URLs valides
             if 'Unnamed: 1' in df.columns:
-                df['Complete URL'] = df['Unnamed: 1'].apply(lambda x: get_complete_url(x) if isinstance(x, str) else x)
+                df['Complete URL'] = df['Unnamed: 1'].apply(lambda x: validate_url(get_complete_url(x)) if isinstance(x, str) else x)
                 
                 st.write("Completing URLs for each simplified URL...")
                 st.write(df.head())

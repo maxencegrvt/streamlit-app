@@ -2,3 +2,5 @@ pandas
 googlesearch-python
 streamlit
 openpyxl
+requests==2.26.0
+googlesearch-python==1.1.0
