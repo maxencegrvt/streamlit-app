@@ -1,18 +1,38 @@
 import pandas as pd
 import streamlit as st
 import requests
+from itertools import cycle
+
+# Liste de proxies à utiliser
+proxies = [
+    {"http": "http://proxy1.com:port", "https": "https://proxy1.com:port"},
+    {"http": "http://proxy2.com:port", "https": "https://proxy2.com:port"},
+    {"http": "http://proxy3.com:port", "https": "https://proxy3.com:port"},
+]
+
+proxy_pool = cycle(proxies)
 
 def get_complete_url(simplified_url):
     if not isinstance(simplified_url, str):
         return "Invalid URL"
     if not simplified_url.startswith("http://") and not simplified_url.startswith("https://"):
         simplified_url = "https://" + simplified_url
-    try:
-        response = requests.get(simplified_url, timeout=10)
-        response.raise_for_status()
-        return response.url
-    except requests.RequestException as e:
-        return f"Error: {str(e)}"
+    for i in range(3):  # Essayer jusqu'à 3 fois avec différents proxies
+        proxy = next(proxy_pool)
+        try:
+            response = requests.get(simplified_url, timeout=10, proxies=proxy)
+            response.raise_for_status()
+            return response.url
+        except requests.exceptions.HTTPError as e:
+            if response.status_code == 403:
+                return f"Error 403: Forbidden for URL: {simplified_url}"
+            elif response.status_code == 410:
+                return f"Error 410: Gone for URL: {simplified_url}"
+            else:
+                continue  # Essayer avec le prochain proxy
+        except requests.RequestException as e:
+            continue  # Essayer avec le prochain proxy
+    return f"Error: Could not retrieve URL for {simplified_url}"
 
 def get_url(company_name):
     query = f"{company_name} site officiel"
