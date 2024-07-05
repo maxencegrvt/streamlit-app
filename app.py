@@ -18,8 +18,8 @@ def clean_url(url):
     url = re.sub(r'^https?://', '', url)
     # Enlever les préfixes www.
     url = re.sub(r'^www\.', '', url)
-    # Enlever le suffixe /
-    url = url.rstrip('/')
+    # Supprimer tout ce qui se trouve après le premier /
+    url = url.split('/')[0]
     return url
 
 st.title('URL Finder for Investment Funds and Start-ups')
@@ -37,7 +37,7 @@ if uploaded_file is not None:
     st.write("Fetching URLs for each company name...")
     df['URL'] = df.iloc[:, 0].apply(get_url)
     
-    # Nettoyer les URLs pour enlever le schéma, le 'www.' et le '/' final
+    # Nettoyer les URLs pour enlever le schéma, le 'www.' et tout ce qui suit le premier '/'
     df['URL'] = df['URL'].apply(clean_url)
     
     # Renommer les colonnes pour correspondre au template
