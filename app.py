@@ -24,14 +24,9 @@ def get_complete_url(simplified_url):
             response.raise_for_status()
             return response.url
         except requests.exceptions.HTTPError as e:
-            if response.status_code == 403:
-                return f"Error 403: Forbidden for URL: {simplified_url}"
-            elif response.status_code == 410:
-                return f"Error 410: Gone for URL: {simplified_url}"
-            else:
-                continue  # Essayer avec le prochain proxy
+            return f"HTTP Error: {e.response.status_code} for URL: {simplified_url}"
         except requests.RequestException as e:
-            continue  # Essayer avec le prochain proxy
+            return f"Request Exception: {e} for URL: {simplified_url}"
     return f"Error: Could not retrieve URL for {simplified_url}"
 
 def get_url(company_name):
