@@ -1,4 +1,0 @@
-pandas
-googlesearch-python
-streamlit
-openpyxl
