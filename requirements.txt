@@ -5,3 +5,4 @@ requests
 googlesearch-python
 beautifulsoup4
 clearbit 
+requests
